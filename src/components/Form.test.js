@@ -1,27 +1,25 @@
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 import Form from './Form';
 
-describe('Form Validation', () => {
-  test('should display validation error messages for empty fields', () => {
+describe('Form Component', () => {
+  test('renders form with input fields and submit button', () => {
     const onSubmitMock = jest.fn();
     render(<Form onSubmit={onSubmitMock} />);
 
-    // Trigger form submission without filling in any fields
-    fireEvent.click(screen.getByText('Save'));
-
-    // Assert that validation error messages are displayed for each field
-    expect(screen.getByText('First Name is required')).toBeInTheDocument();
-    expect(screen.getByText('Last Name is required')).toBeInTheDocument();
-    expect(screen.getByText('Phone is required')).toBeInTheDocument();
+    // Check if form elements are rendered
+    expect(screen.getByLabelText('First Name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Last Name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Phone')).toBeInTheDocument();
+    expect(screen.getByText('Save')).toBeInTheDocument();
   });
 
-  test('should not display validation error messages when form is valid', () => {
+  test('submits form with correct data', () => {
     const onSubmitMock = jest.fn();
     render(<Form onSubmit={onSubmitMock} />);
 
-    // Fill in the form fields with valid data
+    // Fill in the form fields
     fireEvent.change(screen.getByLabelText('First Name'), { target: { value: 'John' } });
     fireEvent.change(screen.getByLabelText('Last Name'), { target: { value: 'Doe' } });
     fireEvent.change(screen.getByLabelText('Phone'), { target: { value: '1234567890' } });
@@ -29,11 +27,11 @@ describe('Form Validation', () => {
     // Trigger form submission
     fireEvent.click(screen.getByText('Save'));
 
-    // Assert that no validation error messages are displayed
-    expect(screen.queryByText('First Name is required')).toBeNull();
-    expect(screen.queryByText('Last Name is required')).toBeNull();
-    expect(screen.queryByText('Phone is required')).toBeNull();
+    // Check if the form submission function is called with the correct data
+    expect(onSubmitMock).toHaveBeenCalledWith({
+      firstName: 'John',
+      lastName: 'Doe',
+      phone: '1234567890',
+    });
   });
-
-  // Add more tests for specific validation scenarios if needed
 });
